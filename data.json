@@ -4,8 +4,8 @@
             "team_home": "South Africa",
             "team_away": "Canada",
             "kickoff_utc": "2026-06-28T19:00:00Z",
-            "status": "TIMED",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Canada",
             "round": "Round of 32"
         },
         "537423": {
