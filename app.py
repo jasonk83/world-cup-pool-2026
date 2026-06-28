@@ -15,11 +15,19 @@ POINTS_MAP = {
     "Final": 32
 }
 
+ROUND_ORDER = [
+    "Round of 32",
+    "Round of 16",
+    "Quarter-finals",
+    "Semi-finals",
+    "Final"
+]
+
 # --- FLAG EMOJI MAPPING ---
 FLAG_MAP = {
     "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺", "Austria": "🇦🇹",
-    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia and Herzegovina": "🇧🇦","Bosnia-Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
-    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde Islands": "🇨🇻",
+    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia-Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde": "🇨🇻",
     "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", 
     "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", "Congo DR": "🇨🇩",
     "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
@@ -68,7 +76,7 @@ def save_data(data):
 data = load_data()
 PLAYERS = data["players"]
 
-st.title("🏆 2026 World Cup Elimination Rounds Pick'em")
+st.title("🏆 2026 World Cup Pool")
 
 # --- INSTRUCTIONS ---
 st.info("""
@@ -120,36 +128,44 @@ with tab1:
     if not visible_matches:
         st.info("Waiting for upcoming round matchups to be determined.")
     else:
-        for match_id, match_info in visible_matches.items():
-            home_team_display = add_flag(match_info['team_home'])
-            away_team_display = add_flag(match_info['team_away'])
+        for current_round in ROUND_ORDER:
+            round_matches = {m_id: m_info for m_id, m_info in visible_matches.items() if m_info['round'] == current_round}
             
-            st.subheader(f"{home_team_display} vs {away_team_display}")
-            
-            # Convert UTC Kickoff to ET and CT
-            kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
-            kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
-            kickoff_ct = kickoff_utc.astimezone(ZoneInfo("America/Chicago")).strftime("%I:%M %p CT")
-            
-            st.caption(f"Round: {match_info['round']} | Kickoff: {kickoff_et} / {kickoff_ct}")
-            
-            is_live_or_past = now_utc >= kickoff_utc
-            
-            cols = st.columns(len(PLAYERS) if len(PLAYERS) > 0 else 1)
-            for idx, player in enumerate(PLAYERS):
-                with cols[idx]:
-                    pick = data["picks"].get(player, {}).get(match_id, "No Pick")
-                    if not is_live_or_past and pick != "No Pick":
-                        st.write(f"**{player}**: 🔒 [Hidden]")
-                    else:
-                        winner_display = add_flag(match_info["winner"]) if match_info.get("winner") else None
-                        
-                        if match_info["status"] == "Match Finished" and pick == winner_display:
-                            st.success(f"**{player}**: {pick}")
-                        elif match_info["status"] == "Match Finished" and pick != winner_display and pick != "No Pick":
-                            st.error(f"**{player}**: {pick}")
-                        else:
-                            st.write(f"**{player}**: {pick}")
+            if round_matches:
+                st.markdown(f"### ⚽ {current_round}")
+                st.divider()
+                
+                for match_id, match_info in round_matches.items():
+                    home_team_display = add_flag(match_info['team_home'])
+                    away_team_display = add_flag(match_info['team_away'])
+                    
+                    st.subheader(f"{home_team_display} vs {away_team_display}")
+                    
+                    # Convert UTC Kickoff to ET and CT
+                    kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
+                    kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
+                    kickoff_ct = kickoff_utc.astimezone(ZoneInfo("America/Chicago")).strftime("%I:%M %p CT")
+                    
+                    st.caption(f"Kickoff: {kickoff_et} / {kickoff_ct}")
+                    
+                    is_live_or_past = now_utc >= kickoff_utc
+                    
+                    cols = st.columns(len(PLAYERS) if len(PLAYERS) > 0 else 1)
+                    for idx, player in enumerate(PLAYERS):
+                        with cols[idx]:
+                            pick = data["picks"].get(player, {}).get(match_id, "No Pick")
+                            if not is_live_or_past and pick != "No Pick":
+                                st.write(f"**{player}**: 🔒 [Hidden]")
+                            else:
+                                winner_display = add_flag(match_info["winner"]) if match_info.get("winner") else None
+                                
+                                if match_info["status"] == "Match Finished" and pick == winner_display:
+                                    st.success(f"**{player}**: {pick}")
+                                elif match_info["status"] == "Match Finished" and pick != winner_display and pick != "No Pick":
+                                    st.error(f"**{player}**: {pick}")
+                                else:
+                                    st.write(f"**{player}**: {pick}")
+                    st.write("") # Add a little padding between matches
 
 # --- TAB 2: SUBMIT PICKS ---
 with tab2:
@@ -188,28 +204,38 @@ with tab2:
                     )
                     st.divider()
                 
-                for match_id, match_info in active_matches.items():
-                    kickoff_time = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
+                # Iterate through chronological round order
+                for current_round in ROUND_ORDER:
+                    round_matches = {m_id: m_info for m_id, m_info in active_matches.items() if m_info['round'] == current_round}
                     
-                    if datetime.now(timezone.utc) < kickoff_time:
-                        home_display = add_flag(match_info['team_home'])
-                        away_display = add_flag(match_info['team_away'])
+                    if round_matches:
+                        st.markdown(f"### 🏆 {current_round}")
+                        st.divider()
                         
-                        options = ["Select Winner", home_display, away_display]
-                        current_pick = data["picks"].get(selected_player, {}).get(match_id, "Select Winner")
+                        for match_id, match_info in round_matches.items():
+                            kickoff_time = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
+                            
+                            if datetime.now(timezone.utc) < kickoff_time:
+                                home_display = add_flag(match_info['team_home'])
+                                away_display = add_flag(match_info['team_away'])
+                                
+                                options = ["Select Winner", home_display, away_display]
+                                current_pick = data["picks"].get(selected_player, {}).get(match_id, "Select Winner")
+                                
+                                default_index = options.index(current_pick) if current_pick in options else 0
+                                
+                                choice = st.selectbox(
+                                    f"{home_display} vs {away_display}", 
+                                    options, 
+                                    index=default_index,
+                                    key=f"pick_{match_id}"
+                                )
+                                if choice != "Select Winner":
+                                    new_picks[match_id] = choice
+                            else:
+                                st.warning(f"🔒 {add_flag(match_info['team_home'])} vs {add_flag(match_info['team_away'])} - Match locked.")
                         
-                        default_index = options.index(current_pick) if current_pick in options else 0
-                        
-                        choice = st.selectbox(
-                            f"{home_display} vs {away_display} ({match_info['round']})", 
-                            options, 
-                            index=default_index,
-                            key=f"pick_{match_id}"
-                        )
-                        if choice != "Select Winner":
-                            new_picks[match_id] = choice
-                    else:
-                        st.warning(f"🔒 {add_flag(match_info['team_home'])} vs {add_flag(match_info['team_away'])} - Match locked.")
+                        st.write("") # Add a little padding after the round block
                         
                 submitted = st.form_submit_button("Save Picks")
                 if submitted:
