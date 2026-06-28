@@ -27,7 +27,7 @@ ROUND_ORDER = [
 FLAG_MAP = {
     "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺", "Austria": "🇦🇹",
     "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia-Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
-    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde": "🇨🇻",
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde Islands": "🇨🇻",
     "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", 
     "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", "Congo DR": "🇨🇩",
     "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
