@@ -2,9 +2,10 @@ import streamlit as st
 import json
 import os
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import urllib.parse
 
-# --- CONFIGURATION (UPDATED TO OPTION A: THE DOUBLING METHOD) ---
+# --- CONFIGURATION (OPTION A: THE DOUBLING METHOD) ---
 DATA_FILE = "data.json"
 POINTS_MAP = {
     "Round of 32": 2,
@@ -13,6 +14,27 @@ POINTS_MAP = {
     "Semi-finals": 16,
     "Final": 32
 }
+
+# --- FLAG EMOJI MAPPING ---
+FLAG_MAP = {
+    "Argentina": "🇦🇷", "Australia": "🇦🇺", "Belgium": "🇧🇪", "Brazil": "🇧🇷", 
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Chile": "🇨🇱", "Colombia": "🇨🇴",
+    "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", "Denmark": "🇩🇰", "Ecuador": "🇪🇨",
+    "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "France": "🇫🇷", "Germany": "🇩🇪", "Ghana": "🇬🇭",
+    "Iran": "🇮🇷", "Italy": "🇮🇹", "Ivory Coast": "🇨🇮", "Japan": "🇯🇵",
+    "Mexico": "🇲🇽", "Morocco": "🇲🇦", "Netherlands": "🇳🇱", "Nigeria": "🇳🇬",
+    "Norway": "🇳🇴", "Peru": "🇵🇪", "Poland": "🇵🇱", "Portugal": "🇵🇹",
+    "Saudi Arabia": "🇸🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Senegal": "🇸🇳", "Serbia": "🇷🇸",
+    "South Korea": "🇰🇷", "Spain": "🇪🇸", "Sweden": "🇸🇪", "Switzerland": "🇨🇭",
+    "United States": "🇺🇸", "USA": "🇺🇸", "Uruguay": "🇺🇾", "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
+}
+
+def add_flag(team_name):
+    """Appends a flag emoji if the team exists in the dictionary."""
+    if not team_name or team_name == "TBD":
+        return "TBD"
+    flag = FLAG_MAP.get(team_name, "")
+    return f"{flag} {team_name}".strip()
 
 # --- DATA LOADING & INITIALIZATION ---
 def load_data():
@@ -51,16 +73,16 @@ tab1, tab2, tab3 = st.tabs(["Dashboard & Standings", "Submit Picks", "Manage Poo
 with tab1:
     st.header("Current Standings")
     
-    # Calculate Scores
+    # Calculate Scores using flagged names
     scores = {p: 0 for p in PLAYERS}
     for match_id, match_info in data["matches"].items():
         if match_info["status"] == "Match Finished":
-            winner = match_info["winner"]
+            winner_with_flag = add_flag(match_info["winner"])
             round_name = match_info["round"]
             points = POINTS_MAP.get(round_name, 0)
             
             for player in PLAYERS:
-                if data["picks"].get(player, {}).get(match_id) == winner:
+                if data["picks"].get(player, {}).get(match_id) == winner_with_flag:
                     scores[player] += points
 
     # Display Leaderboard
@@ -80,11 +102,19 @@ with tab1:
         st.info("Waiting for upcoming round matchups to be determined.")
     else:
         for match_id, match_info in visible_matches.items():
-            st.subheader(f"{match_info['team_home']} vs {match_info['team_away']}")
-            st.caption(f"Round: {match_info['round']} | Kickoff: {match_info['kickoff_utc']} UTC")
+            home_team_display = add_flag(match_info['team_home'])
+            away_team_display = add_flag(match_info['team_away'])
             
-            kickoff_time = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
-            is_live_or_past = now_utc >= kickoff_time
+            st.subheader(f"{home_team_display} vs {away_team_display}")
+            
+            # Convert UTC Kickoff to ET and CT
+            kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
+            kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
+            kickoff_ct = kickoff_utc.astimezone(ZoneInfo("America/Chicago")).strftime("%I:%M %p CT")
+            
+            st.caption(f"Round: {match_info['round']} | Kickoff: {kickoff_et} / {kickoff_ct}")
+            
+            is_live_or_past = now_utc >= kickoff_utc
             
             cols = st.columns(len(PLAYERS) if len(PLAYERS) > 0 else 1)
             for idx, player in enumerate(PLAYERS):
@@ -93,9 +123,11 @@ with tab1:
                     if not is_live_or_past and pick != "No Pick":
                         st.write(f"**{player}**: 🔒 [Hidden]")
                     else:
-                        if match_info["status"] == "Match Finished" and pick == match_info["winner"]:
+                        winner_display = add_flag(match_info["winner"]) if match_info.get("winner") else None
+                        
+                        if match_info["status"] == "Match Finished" and pick == winner_display:
                             st.success(f"**{player}**: {pick}")
-                        elif match_info["status"] == "Match Finished" and pick != match_info["winner"] and pick != "No Pick":
+                        elif match_info["status"] == "Match Finished" and pick != winner_display and pick != "No Pick":
                             st.error(f"**{player}**: {pick}")
                         else:
                             st.write(f"**{player}**: {pick}")
@@ -141,13 +173,16 @@ with tab2:
                     kickoff_time = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
                     
                     if datetime.now(timezone.utc) < kickoff_time:
-                        options = ["Select Winner", match_info['team_home'], match_info['team_away']]
+                        home_display = add_flag(match_info['team_home'])
+                        away_display = add_flag(match_info['team_away'])
+                        
+                        options = ["Select Winner", home_display, away_display]
                         current_pick = data["picks"].get(selected_player, {}).get(match_id, "Select Winner")
                         
                         default_index = options.index(current_pick) if current_pick in options else 0
                         
                         choice = st.selectbox(
-                            f"{match_info['team_home']} vs {match_info['team_away']} ({match_info['round']})", 
+                            f"{home_display} vs {away_display} ({match_info['round']})", 
                             options, 
                             index=default_index,
                             key=f"pick_{match_id}"
@@ -155,7 +190,7 @@ with tab2:
                         if choice != "Select Winner":
                             new_picks[match_id] = choice
                     else:
-                        st.warning(f"🔒 {match_info['team_home']} vs {match_info['team_away']} - Match locked.")
+                        st.warning(f"🔒 {add_flag(match_info['team_home'])} vs {add_flag(match_info['team_away'])} - Match locked.")
                         
                 submitted = st.form_submit_button("Save Picks")
                 if submitted:
