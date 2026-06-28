@@ -2,22 +2,30 @@ import requests
 import json
 import os
 
-API_KEY = os.environ.get("API_FOOTBALL_KEY")
+# Reusing the existing secret name so you don't have to change your .yml file
+API_KEY = os.environ.get("API_FOOTBALL_KEY") 
 DATA_FILE = "data.json"
-LEAGUE_ID = "1"
-SEASON = "2026"
+COMPETITION_ID = "2000" # Football-Data.org's ID for the FIFA World Cup
+
+# Maps the API's stage names to the exact round names used in your app's scoring logic
+ROUND_MAP = {
+    "LAST_32": "Round of 32",
+    "LAST_16": "Round of 16",
+    "QUARTER_FINALS": "Quarter-finals",
+    "SEMI_FINALS": "Semi-finals",
+    "FINAL": "Final"
+}
 
 def get_live_scores():
-    url = f"https://v3.football.api-sports.io/fixtures?league={LEAGUE_ID}&season={SEASON}"
+    url = f"https://api.football-data.org/v4/competitions/{COMPETITION_ID}/matches"
     headers = {
-        'x-apisports-key': API_KEY
+        'X-Auth-Token': API_KEY
     }
     response = requests.get(url, headers=headers)
     
-    # Safely attempt to parse JSON, printing the raw response if it fails
     try:
         data = response.json()
-        print("API Response:", data)
+        print("API Response fetched successfully.")
         return data
     except requests.exceptions.JSONDecodeError:
         print("CRITICAL API ERROR. Raw response text:")
@@ -33,27 +41,41 @@ def update_data():
 
     api_data = get_live_scores()
     
-    # Check that 'response' exists and is a valid list before looping
-    if "response" in api_data and isinstance(api_data["response"], list):
-        for fixture in api_data["response"]:
-            match_id = str(fixture["fixture"]["id"])
-            status = fixture["fixture"]["status"]["long"]
-            home_team = fixture["teams"]["home"]["name"]
-            away_team = fixture["teams"]["away"]["name"]
+    if "matches" in api_data:
+        for match in api_data["matches"]:
+            raw_stage = match.get("stage", "")
+            
+            # Filter to only process knockout rounds
+            if raw_stage not in ROUND_MAP:
+                continue
+                
+            match_id = str(match["id"])
+            status = match["status"]
+            
+            # Map the API's "FINISHED" status to the phrase your Streamlit app expects
+            app_status = "Match Finished" if status == "FINISHED" else status
+            
+            # Safely get team names, defaulting to "TBD" if they aren't decided yet
+            home_node = match.get("homeTeam") or {}
+            away_node = match.get("awayTeam") or {}
+            home_team = home_node.get("name") or "TBD"
+            away_team = away_node.get("name") or "TBD"
             
             winner = None
-            if fixture["teams"]["home"]["winner"]:
-                winner = home_team
-            elif fixture["teams"]["away"]["winner"]:
-                winner = away_team
+            if status == "FINISHED":
+                api_winner = match["score"].get("winner")
+                if api_winner == "HOME_TEAM":
+                    winner = home_team
+                elif api_winner == "AWAY_TEAM":
+                    winner = away_team
 
             data["matches"][match_id] = {
                 "team_home": home_team,
                 "team_away": away_team,
-                "kickoff_utc": fixture["fixture"]["date"],
-                "status": status,
+                "kickoff_utc": match["utcDate"],
+                "status": app_status,
                 "winner": winner,
-                "round": fixture["league"]["round"]
+                "round": ROUND_MAP[raw_stage]
             }
 
     with open(DATA_FILE, "w") as f:
