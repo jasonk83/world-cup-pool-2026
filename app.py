@@ -68,7 +68,7 @@ def save_data(data):
 data = load_data()
 PLAYERS = data["players"]
 
-st.title("🏆 2026 World Cup Pool")
+st.title("🏆 2026 World Cup Elimination Rounds Pick'em")
 
 # --- TABS ---
 tab1, tab2, tab3 = st.tabs(["Dashboard & Standings", "Submit Picks", "Manage Pool"])
