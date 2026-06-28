@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import os
 from datetime import datetime, timezone
+import urllib.parse
 
 # --- CONFIGURATION ---
 DATA_FILE = "data.json"
@@ -19,7 +20,6 @@ def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
             data = json.load(f)
-            # Ensure backward compatibility if keys are missing
             if "players" not in data:
                 data["players"] = default_players
             if "picks" not in data:
@@ -71,7 +71,6 @@ with tab1:
     
     now_utc = datetime.now(timezone.utc)
     
-    # Only show matchups on the dashboard where teams are completely determined
     visible_matches = {
         m_id: m_info for m_id, m_info in data["matches"].items() 
         if m_info['team_home'] != "TBD" and m_info['team_away'] != "TBD"
@@ -87,7 +86,6 @@ with tab1:
             kickoff_time = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
             is_live_or_past = now_utc >= kickoff_time
             
-            # Display player selections
             cols = st.columns(len(PLAYERS) if len(PLAYERS) > 0 else 1)
             for idx, player in enumerate(PLAYERS):
                 with cols[idx]:
@@ -102,16 +100,23 @@ with tab1:
                         else:
                             st.write(f"**{player}**: {pick}")
 
-# --- TAB 2: SUBMIT PICKS ---
+# --- TAB 2: SUBMIT PICKS (WITH LINK LOCKING) ---
 with tab2:
     st.header("Submit Your Picks")
     
-    if not PLAYERS:
-        st.warning("Please add players in the 'Manage Pool' tab first.")
+    # Read the ?player= parameter from the website URL link
+    url_player = st.query_params.get("player", None)
+    
+    if not url_player or url_player not in PLAYERS:
+        st.error("⚠️ **Access Denied:** You must use your unique personal link to submit picks. This prevents players from modifying entries belonging to competitors.")
+        st.info("Please request your personalized submission link from the pool administrator.")
     else:
-        selected_player = st.selectbox("Who are you?", PLAYERS)
+        st.success(f"Verified Entry Session For: **{url_player}**")
         
-        # Filter matchups to only show valid, non-TBD entries for round-by-round picking
+        # Display the selectbox but lock it completely so it cannot be toggled
+        player_idx = PLAYERS.index(url_player)
+        selected_player = st.selectbox("Your Player Profile:", PLAYERS, index=player_idx, disabled=True)
+        
         active_matches = {
             m_id: m_info for m_id, m_info in data["matches"].items()
             if m_info['team_home'] != "TBD" and m_info['team_away'] != "TBD"
@@ -122,8 +127,6 @@ with tab2:
         else:
             with st.form("picks_form"):
                 new_picks = {}
-                
-                # Check if the "Final" matchup is active and determined
                 has_final_round = any(m_info["round"] == "Final" for m_info in active_matches.values())
                 
                 tiebreaker = 0
@@ -164,31 +167,47 @@ with tab2:
                     save_data(data)
                     st.success("Picks saved successfully!")
 
-# --- TAB 3: MANAGE POOL ---
+# --- TAB 3: MANAGE POOL (PASSWORD PROTECTED) ---
 with tab3:
     st.header("Pool Administration")
-    st.subheader("Manage Players")
     
-    # Format current players text for the area box
-    players_text = "\n".join(PLAYERS)
-    updated_text = st.text_area("Enter player names (One name per line):", value=players_text)
+    # Prompt for secret password configured in Phase 1
+    input_password = st.text_input("Enter Admin Password:", type="password")
+    master_password = st.secrets.get("ADMIN_PASSWORD", "admin_fallback_default")
     
-    if st.button("Save Player List"):
-        # Split names, strip out whitespace, and filter empty rows
-        new_player_list = [name.strip() for name in updated_text.split("\n") if name.strip()]
+    if input_password != master_password:
+        st.warning("🔒 This section is restricted to the App Owner. Enter the admin password to unlock management tools.")
+    else:
+        st.success("Admin permissions unlocked.")
+        st.subheader("Manage Players")
         
-        # Build clean collections, retaining existing history for matching names
-        updated_picks = {}
-        updated_tiebreakers = {}
+        players_text = "\n".join(PLAYERS)
+        updated_text = st.text_area("Enter player names (One name per line):", value=players_text)
         
-        for player in new_player_list:
-            updated_picks[player] = data["picks"].get(player, {})
-            updated_tiebreakers[player] = data["tiebreakers"].get(player, 0)
+        if st.button("Save Player List"):
+            new_player_list = [name.strip() for name in updated_text.split("\n") if name.strip()]
             
-        data["players"] = new_player_list
-        data["picks"] = updated_picks
-        data["tiebreakers"] = updated_tiebreakers
+            updated_picks = {}
+            updated_tiebreakers = {}
+            for player in new_player_list:
+                updated_picks[player] = data["picks"].get(player, {})
+                updated_tiebreakers[player] = data["tiebreakers"].get(player, 0)
+                
+            data["players"] = new_player_list
+            data["picks"] = updated_picks
+            data["tiebreakers"] = updated_tiebreakers
+            
+            save_data(data)
+            st.success("Player database updated successfully!")
+            st.rerun()
+            
+        st.divider()
+        st.subheader("🔗 Generate Unique Player Links")
+        st.write("Copy and send these custom web addresses to your players. These links automatically log them in and block access to other players' ballots.")
         
-        save_data(data)
-        st.success("Player database updated successfully!")
-        st.rerun()
+        base_url = st.secrets.get("APP_URL", "https://your-app-name.streamlit.app").rstrip("/")
+        
+        for player in PLAYERS:
+            encoded_name = urllib.parse.quote_plus(player)
+            player_link = f"{base_url}/?player={encoded_name}"
+            st.text_input(f"Link for {player}:", value=player_link, key=f"link_{player}")
