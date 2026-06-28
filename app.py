@@ -17,16 +17,20 @@ POINTS_MAP = {
 
 # --- FLAG EMOJI MAPPING ---
 FLAG_MAP = {
-    "Argentina": "🇦🇷", "Australia": "🇦🇺", "Belgium": "🇧🇪", "Brazil": "🇧🇷", 
-    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Chile": "🇨🇱", "Colombia": "🇨🇴",
-    "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", "Denmark": "🇩🇰", "Ecuador": "🇪🇨",
-    "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "France": "🇫🇷", "Germany": "🇩🇪", "Ghana": "🇬🇭",
-    "Iran": "🇮🇷", "Italy": "🇮🇹", "Ivory Coast": "🇨🇮", "Japan": "🇯🇵",
-    "Mexico": "🇲🇽", "Morocco": "🇲🇦", "Netherlands": "🇳🇱", "Nigeria": "🇳🇬",
-    "Norway": "🇳🇴", "Peru": "🇵🇪", "Poland": "🇵🇱", "Portugal": "🇵🇹",
+    "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺", "Austria": "🇦🇹",
+    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia and Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde": "🇨🇻",
+    "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", 
+    "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", "Congo DR": "🇨🇩",
+    "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
+    "France": "🇫🇷", "Germany": "🇩🇪", "Ghana": "🇬🇭", "Iran": "🇮🇷", 
+    "Italy": "🇮🇹", "Ivory Coast": "🇨🇮", "Japan": "🇯🇵", "Mexico": "🇲🇽", 
+    "Morocco": "🇲🇦", "Netherlands": "🇳🇱", "Nigeria": "🇳🇬", "Norway": "🇳🇴", 
+    "Paraguay": "🇵🇾", "Peru": "🇵🇪", "Poland": "🇵🇱", "Portugal": "🇵🇹", 
     "Saudi Arabia": "🇸🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Senegal": "🇸🇳", "Serbia": "🇷🇸",
-    "South Korea": "🇰🇷", "Spain": "🇪🇸", "Sweden": "🇸🇪", "Switzerland": "🇨🇭",
-    "United States": "🇺🇸", "USA": "🇺🇸", "Uruguay": "🇺🇾", "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
+    "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Spain": "🇪🇸", "Sweden": "🇸🇪", 
+    "Switzerland": "🇨🇭", "United States": "🇺🇸", "USA": "🇺🇸", "Uruguay": "🇺🇾", 
+    "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
 }
 
 def add_flag(team_name):
