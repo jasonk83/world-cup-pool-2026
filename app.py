@@ -4,14 +4,14 @@ import os
 from datetime import datetime, timezone
 import urllib.parse
 
-# --- CONFIGURATION ---
+# --- CONFIGURATION (UPDATED TO OPTION A: THE DOUBLING METHOD) ---
 DATA_FILE = "data.json"
 POINTS_MAP = {
-    "Round of 32": 3,
-    "Round of 16": 6,
-    "Quarter-finals": 9,
-    "Semi-finals": 12,
-    "Final": 15
+    "Round of 32": 2,
+    "Round of 16": 4,
+    "Quarter-finals": 8,
+    "Semi-finals": 16,
+    "Final": 32
 }
 
 # --- DATA LOADING & INITIALIZATION ---
@@ -100,20 +100,18 @@ with tab1:
                         else:
                             st.write(f"**{player}**: {pick}")
 
-# --- TAB 2: SUBMIT PICKS (WITH LINK LOCKING) ---
+# --- TAB 2: SUBMIT PICKS ---
 with tab2:
     st.header("Submit Your Picks")
     
-    # Read the ?player= parameter from the website URL link
     url_player = st.query_params.get("player", None)
     
     if not url_player or url_player not in PLAYERS:
-        st.error("⚠️ **Access Denied:** You must use your unique personal link to submit picks. This prevents players from modifying entries belonging to competitors.")
+        st.error("⚠️ **Access Denied:** You must use your unique personal link to submit picks.")
         st.info("Please request your personalized submission link from the pool administrator.")
     else:
         st.success(f"Verified Entry Session For: **{url_player}**")
         
-        # Display the selectbox but lock it completely so it cannot be toggled
         player_idx = PLAYERS.index(url_player)
         selected_player = st.selectbox("Your Player Profile:", PLAYERS, index=player_idx, disabled=True)
         
@@ -167,11 +165,10 @@ with tab2:
                     save_data(data)
                     st.success("Picks saved successfully!")
 
-# --- TAB 3: MANAGE POOL (PASSWORD PROTECTED) ---
+# --- TAB 3: MANAGE POOL ---
 with tab3:
     st.header("Pool Administration")
     
-    # Prompt for secret password configured in Phase 1
     input_password = st.text_input("Enter Admin Password:", type="password")
     master_password = st.secrets.get("ADMIN_PASSWORD", "admin_fallback_default")
     
@@ -203,7 +200,7 @@ with tab3:
             
         st.divider()
         st.subheader("🔗 Generate Unique Player Links")
-        st.write("Copy and send these custom web addresses to your players. These links automatically log them in and block access to other players' ballots.")
+        st.write("Copy and send these custom web addresses to your players:")
         
         base_url = st.secrets.get("APP_URL", "https://your-app-name.streamlit.app").rstrip("/")
         
