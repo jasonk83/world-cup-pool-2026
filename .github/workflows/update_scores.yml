@@ -2,7 +2,7 @@ name: Update World Cup Scores
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs at 00:00 UTC every day
+    - cron: '0 * * * *' # Runs every hour
   workflow_dispatch: # Allows manual triggering from GitHub
 
 # Grant the GitHub Action token permission to write changes back to the repo
