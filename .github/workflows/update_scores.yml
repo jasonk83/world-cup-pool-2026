@@ -5,6 +5,10 @@ on:
     - cron: '0 0 * * *' # Runs at 00:00 UTC every day
   workflow_dispatch: # Allows manual triggering from GitHub
 
+# Grant the GitHub Action token permission to write changes back to the repo
+permissions:
+  contents: write
+
 jobs:
   update-scores:
     runs-on: ubuntu-latest
