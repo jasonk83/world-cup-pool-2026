@@ -4,7 +4,7 @@ import os
 
 API_KEY = os.environ.get("API_FOOTBALL_KEY")
 DATA_FILE = "data.json"
-LEAGUE_ID = "1" # API-Football's standard World Cup ID
+LEAGUE_ID = "1"
 SEASON = "2026"
 
 def get_live_scores():
@@ -13,26 +13,34 @@ def get_live_scores():
         'x-apisports-key': API_KEY
     }
     response = requests.get(url, headers=headers)
-    return response.json()
+    
+    # Safely attempt to parse JSON, printing the raw response if it fails
+    try:
+        data = response.json()
+        print("API Response:", data)
+        return data
+    except requests.exceptions.JSONDecodeError:
+        print("CRITICAL API ERROR. Raw response text:")
+        print(response.text)
+        return {}
 
 def update_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
             data = json.load(f)
     else:
-        # Initialize structure if it doesn't exist
         data = {"matches": {}, "picks": {}, "tiebreakers": {}}
 
     api_data = get_live_scores()
     
-    if "response" in api_data:
+    # Check that 'response' exists and is a valid list before looping
+    if "response" in api_data and isinstance(api_data["response"], list):
         for fixture in api_data["response"]:
             match_id = str(fixture["fixture"]["id"])
             status = fixture["fixture"]["status"]["long"]
             home_team = fixture["teams"]["home"]["name"]
             away_team = fixture["teams"]["away"]["name"]
             
-            # Determine winner
             winner = None
             if fixture["teams"]["home"]["winner"]:
                 winner = home_team
@@ -42,7 +50,7 @@ def update_data():
             data["matches"][match_id] = {
                 "team_home": home_team,
                 "team_away": away_team,
-                "kickoff_utc": fixture["fixture"]["date"], # UTC ISO format
+                "kickoff_utc": fixture["fixture"]["date"],
                 "status": status,
                 "winner": winner,
                 "round": fixture["league"]["round"]
@@ -50,8 +58,7 @@ def update_data():
 
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
-    print("Match data updated successfully.")
+    print("Script execution completed successfully.")
 
 if __name__ == "__main__":
     update_data()
-print(api_data) # <-- Add this line to expose the raw API response
