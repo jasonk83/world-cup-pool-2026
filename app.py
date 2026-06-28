@@ -70,6 +70,21 @@ PLAYERS = data["players"]
 
 st.title("🏆 2026 World Cup Elimination Rounds Pick'em")
 
+# --- INSTRUCTIONS ---
+st.info("""
+Using your unique URL, make your selections for each confirmed matchup before kickoff of the match. Picks are hidden until the match starts and the picks are locked. You can make all the picks at once or go day by day using the URL.
+
+**Scoring Summary**
+
+| Tournament Round | Number of Matchups | Points Per Selection | Total Points Available |
+| :--- | :---: | :---: | :---: |
+| **Round of 32** | 16 | 2 | 32 |
+| **Round of 16** | 8 | 4 | 32 |
+| **Quarter-finals** | 4 | 8 | 32 |
+| **Semi-finals** | 2 | 16 | 32 |
+| **Final** | 1 | 32 | 32 |
+""")
+
 # --- TABS ---
 tab1, tab2, tab3 = st.tabs(["Dashboard & Standings", "Submit Picks", "Manage Pool"])
 
