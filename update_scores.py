@@ -54,3 +54,4 @@ def update_data():
 
 if __name__ == "__main__":
     update_data()
+print(api_data) # <-- Add this line to expose the raw API response
