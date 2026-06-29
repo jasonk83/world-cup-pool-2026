@@ -28,19 +28,20 @@ ROUND_ORDER = [
 # --- FLAG EMOJI MAPPING ---
 FLAG_MAP = {
     "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺", "Austria": "🇦🇹",
-    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia-Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
-    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde Islands": "🇨🇻",
-    "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", 
-    "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", "Congo DR": "🇨🇩",
-    "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
-    "France": "🇫🇷", "Germany": "🇩🇪", "Ghana": "🇬🇭", "Iran": "🇮🇷", 
-    "Italy": "🇮🇹", "Ivory Coast": "🇨🇮", "Japan": "🇯🇵", "Mexico": "🇲🇽", 
-    "Morocco": "🇲🇦", "Netherlands": "🇳🇱", "Nigeria": "🇳🇬", "Norway": "🇳🇴", 
-    "Paraguay": "🇵🇾", "Peru": "🇵🇪", "Poland": "🇵🇱", "Portugal": "🇵🇹", 
-    "Saudi Arabia": "🇸🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Senegal": "🇸🇳", "Serbia": "🇷🇸",
-    "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Spain": "🇪🇸", "Sweden": "🇸🇪", 
-    "Switzerland": "🇨🇭", "United States": "🇺🇸", "USA": "🇺🇸", "Uruguay": "🇺🇾", 
-    "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
+    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia and Herzegovina": "🇧🇦", 
+    "Bosnia-Herzegovina": "🇧🇦", "Bosnia-Herzogonvina": "🇧🇦", "Brazil": "🇧🇷", 
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde": "🇨🇻", 
+    "Cape Verde Islands": "🇨🇻", "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", 
+    "Croatia": "🇭🇷", "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", 
+    "Congo DR": "🇨🇩", "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", 
+    "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "France": "🇫🇷", "Germany": "🇩🇪", "Ghana": "🇬🇭", 
+    "Iran": "🇮🇷", "Italy": "🇮🇹", "Ivory Coast": "🇨🇮", "Japan": "🇯🇵", 
+    "Mexico": "🇲🇽", "Morocco": "🇲🇦", "Netherlands": "🇳🇱", "Nigeria": "🇳🇬", 
+    "Norway": "🇳🇴", "Paraguay": "🇵🇾", "Peru": "🇵🇪", "Poland": "🇵🇱", 
+    "Portugal": "🇵🇹", "Saudi Arabia": "🇸🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", 
+    "Senegal": "🇸🇳", "Serbia": "🇷🇸", "South Africa": "🇿🇦", "South Korea": "🇰🇷", 
+    "Spain": "🇪🇸", "Sweden": "🇸🇪", "Switzerland": "🇨🇭", "United States": "🇺🇸", 
+    "USA": "🇺🇸", "Uruguay": "🇺🇾", "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
 }
 
 def add_flag(team_name):
@@ -177,6 +178,11 @@ with tab1:
             round_matches = {m_id: m_info for m_id, m_info in visible_matches.items() if m_info['round'] == current_round}
             
             if round_matches:
+                # Hide the entire round if all matchups in this stage have concluded
+                all_finished = all(m_info["status"] == "Match Finished" for m_info in round_matches.values())
+                if all_finished:
+                    continue
+                    
                 st.markdown(f"### ⚽ {current_round}")
                 st.divider()
                 
@@ -185,6 +191,11 @@ with tab1:
                     away_team_display = add_flag(match_info['team_away'])
                     
                     st.subheader(f"{home_team_display} vs {away_team_display}")
+                    
+                    # Display H1 winner line if this specific match is finished
+                    if match_info["status"] == "Match Finished" and match_info.get("winner"):
+                        winner_display = add_flag(match_info["winner"])
+                        st.markdown(f"# 🎉 Winner: {winner_display} 🏆")
                     
                     kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
                     kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
@@ -293,3 +304,41 @@ with tab3:
     st.header("Pool Administration")
     
     input_password = st.text_input("Enter Admin Password:", type="password")
+    master_password = st.secrets.get("ADMIN_PASSWORD", "admin_fallback_default")
+    
+    if input_password != master_password:
+        st.warning("🔒 This section is restricted to the App Owner. Enter the admin password to unlock management tools.")
+    else:
+        st.success("Admin permissions unlocked.")
+        st.subheader("Manage Players")
+        
+        players_text = "\n".join(PLAYERS)
+        updated_text = st.text_area("Enter player names (One name per line):", value=players_text)
+        
+        if st.button("Save Player List"):
+            new_player_list = [name.strip() for name in updated_text.split("\n") if name.strip()]
+            
+            updated_picks = {}
+            updated_tiebreakers = {}
+            for player in new_player_list:
+                updated_picks[player] = data["picks"].get(player, {})
+                updated_tiebreakers[player] = data["tiebreakers"].get(player, 0)
+                
+            data["players"] = new_player_list
+            data["picks"] = updated_picks
+            data["tiebreakers"] = updated_tiebreakers
+            
+            save_data(data)
+            st.success("Player database updated successfully!")
+            st.rerun()
+            
+        st.divider()
+        st.subheader("🔗 Generate Unique Player Links")
+        st.write("Copy and send these custom web addresses to your players:")
+        
+        base_url = st.secrets.get("APP_URL", "https://your-app-name.streamlit.app").rstrip("/")
+        
+        for player in PLAYERS:
+            encoded_name = urllib.parse.quote_plus(player)
+            player_link = f"{base_url}/?player={encoded_name}"
+            st.text_input(f"Link for {player}:", value=player_link, key=f"link_{player}")
