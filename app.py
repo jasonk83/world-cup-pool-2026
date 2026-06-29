@@ -4,6 +4,8 @@ import os
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import urllib.parse
+import base64
+import requests
 
 # --- CONFIGURATION (OPTION A: THE DOUBLING METHOD) ---
 DATA_FILE = "data.json"
@@ -26,8 +28,8 @@ ROUND_ORDER = [
 # --- FLAG EMOJI MAPPING ---
 FLAG_MAP = {
     "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺", "Austria": "🇦🇹",
-    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia-Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
-    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde Islands": "🇨🇻",
+    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia and Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde": "🇨🇻",
     "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", 
     "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", "Congo DR": "🇨🇩",
     "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
@@ -42,7 +44,6 @@ FLAG_MAP = {
 }
 
 def add_flag(team_name):
-    """Appends a flag emoji if the team exists in the dictionary."""
     if not team_name or team_name == "TBD":
         return "TBD"
     flag = FLAG_MAP.get(team_name, "")
@@ -70,8 +71,38 @@ def load_data():
     }
 
 def save_data(data):
+    # 1. Save locally for an immediate app refresh
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
+        
+    # 2. Push permanently back to the GitHub repository
+    token = st.secrets.get("GITHUB_TOKEN")
+    repo = st.secrets.get("GITHUB_REPO")
+    
+    if token and repo:
+        url = f"https://api.github.com/repos/{repo}/contents/{DATA_FILE}"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        
+        # GitHub requires the current file's SHA hash to update it
+        get_response = requests.get(url, headers=headers)
+        if get_response.status_code == 200:
+            file_sha = get_response.json().get("sha")
+            
+            # Encode the new JSON data in Base64 (required by GitHub API)
+            json_string = json.dumps(data, indent=4)
+            encoded_content = base64.b64encode(json_string.encode("utf-8")).decode("utf-8")
+            
+            payload = {
+                "message": "Automated commit: App data updated via Streamlit UI",
+                "content": encoded_content,
+                "sha": file_sha
+            }
+            
+            # Send the update to GitHub
+            requests.put(url, headers=headers, json=payload)
 
 data = load_data()
 PLAYERS = data["players"]
@@ -100,7 +131,6 @@ tab1, tab2, tab3 = st.tabs(["Dashboard & Standings", "Submit Picks", "Manage Poo
 with tab1:
     st.header("Current Standings")
     
-    # Calculate Scores using flagged names
     scores = {p: 0 for p in PLAYERS}
     for match_id, match_info in data["matches"].items():
         if match_info["status"] == "Match Finished":
@@ -112,7 +142,6 @@ with tab1:
                 if data["picks"].get(player, {}).get(match_id) == winner_with_flag:
                     scores[player] += points
 
-    # Display Leaderboard
     st.dataframe([{"Player": p, "Points": s} for p, s in sorted(scores.items(), key=lambda x: x[1], reverse=True)])
 
     st.divider()
@@ -141,7 +170,6 @@ with tab1:
                     
                     st.subheader(f"{home_team_display} vs {away_team_display}")
                     
-                    # Convert UTC Kickoff to ET and CT
                     kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
                     kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
                     kickoff_ct = kickoff_utc.astimezone(ZoneInfo("America/Chicago")).strftime("%I:%M %p CT")
@@ -165,7 +193,7 @@ with tab1:
                                     st.error(f"**{player}**: {pick}")
                                 else:
                                     st.write(f"**{player}**: {pick}")
-                    st.write("") # Add a little padding between matches
+                    st.write("") 
 
 # --- TAB 2: SUBMIT PICKS ---
 with tab2:
@@ -204,7 +232,6 @@ with tab2:
                     )
                     st.divider()
                 
-                # Iterate through chronological round order
                 for current_round in ROUND_ORDER:
                     round_matches = {m_id: m_info for m_id, m_info in active_matches.items() if m_info['round'] == current_round}
                     
@@ -235,7 +262,7 @@ with tab2:
                             else:
                                 st.warning(f"🔒 {add_flag(match_info['team_home'])} vs {add_flag(match_info['team_away'])} - Match locked.")
                         
-                        st.write("") # Add a little padding after the round block
+                        st.write("") 
                         
                 submitted = st.form_submit_button("Save Picks")
                 if submitted:
@@ -243,7 +270,7 @@ with tab2:
                     if has_final_round:
                         data["tiebreakers"][selected_player] = tiebreaker
                     save_data(data)
-                    st.success("Picks saved successfully!")
+                    st.success("Picks saved successfully! Changes are permanently backed up.")
 
 # --- TAB 3: MANAGE POOL ---
 with tab3:
