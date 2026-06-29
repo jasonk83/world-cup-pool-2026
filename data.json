@@ -249,6 +249,25 @@
             "round": "Final"
         }
     },
-    "picks": {},
-    "tiebreakers": {}
+    "picks": {
+        "Chief": {},
+        "Stuebe": {},
+        "Carly": {},
+        "Antonio": {},
+        "Kennedy": {}
+    },
+    "tiebreakers": {
+        "Chief": 0,
+        "Stuebe": 0,
+        "Carly": 0,
+        "Antonio": 0,
+        "Kennedy": 0
+    },
+    "players": [
+        "Chief",
+        "Stuebe",
+        "Carly",
+        "Antonio",
+        "Kennedy"
+    ]
 }
