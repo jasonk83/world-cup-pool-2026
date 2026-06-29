@@ -250,7 +250,10 @@
         }
     },
     "picks": {
-        "Chief": {},
+        "Chief": {
+            "537415": "\ud83c\udde9\ud83c\uddea Germany",
+            "537418": "\ud83c\uddf2\ud83c\udde6 Morocco"
+        },
         "Stuebe": {},
         "Carly": {},
         "Antonio": {},
