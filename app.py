@@ -131,6 +131,7 @@ tab1, tab2, tab3 = st.tabs(["Dashboard & Standings", "Submit Picks", "Manage Poo
 with tab1:
     st.header("Current Standings")
     
+    # Calculate Scores
     scores = {p: 0 for p in PLAYERS}
     for match_id, match_info in data["matches"].items():
         if match_info["status"] == "Match Finished":
@@ -142,7 +143,22 @@ with tab1:
                 if data["picks"].get(player, {}).get(match_id) == winner_with_flag:
                     scores[player] += points
 
-    st.dataframe([{"Player": p, "Points": s} for p, s in sorted(scores.items(), key=lambda x: x[1], reverse=True)])
+    # Sort scores descending
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    
+    # Calculate competition rankings (allows for ties)
+    ranked_leaderboard = []
+    current_rank = 1
+    previous_score = None
+    
+    for index, (player, score) in enumerate(sorted_scores):
+        if previous_score is None or score < previous_score:
+            current_rank = index + 1
+        ranked_leaderboard.append({"Rank": current_rank, "Player": player, "Points": score})
+        previous_score = score
+
+    # Display Leaderboard without the default row index
+    st.dataframe(ranked_leaderboard, hide_index=True)
 
     st.divider()
     st.header("Matchups & Picks")
@@ -277,41 +293,3 @@ with tab3:
     st.header("Pool Administration")
     
     input_password = st.text_input("Enter Admin Password:", type="password")
-    master_password = st.secrets.get("ADMIN_PASSWORD", "admin_fallback_default")
-    
-    if input_password != master_password:
-        st.warning("🔒 This section is restricted to the App Owner. Enter the admin password to unlock management tools.")
-    else:
-        st.success("Admin permissions unlocked.")
-        st.subheader("Manage Players")
-        
-        players_text = "\n".join(PLAYERS)
-        updated_text = st.text_area("Enter player names (One name per line):", value=players_text)
-        
-        if st.button("Save Player List"):
-            new_player_list = [name.strip() for name in updated_text.split("\n") if name.strip()]
-            
-            updated_picks = {}
-            updated_tiebreakers = {}
-            for player in new_player_list:
-                updated_picks[player] = data["picks"].get(player, {})
-                updated_tiebreakers[player] = data["tiebreakers"].get(player, 0)
-                
-            data["players"] = new_player_list
-            data["picks"] = updated_picks
-            data["tiebreakers"] = updated_tiebreakers
-            
-            save_data(data)
-            st.success("Player database updated successfully!")
-            st.rerun()
-            
-        st.divider()
-        st.subheader("🔗 Generate Unique Player Links")
-        st.write("Copy and send these custom web addresses to your players:")
-        
-        base_url = st.secrets.get("APP_URL", "https://your-app-name.streamlit.app").rstrip("/")
-        
-        for player in PLAYERS:
-            encoded_name = urllib.parse.quote_plus(player)
-            player_link = f"{base_url}/?player={encoded_name}"
-            st.text_input(f"Link for {player}:", value=player_link, key=f"link_{player}")
