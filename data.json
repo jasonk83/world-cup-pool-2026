@@ -12,7 +12,7 @@
             "team_home": "Brazil",
             "team_away": "Japan",
             "kickoff_utc": "2026-06-29T17:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 32"
         },
