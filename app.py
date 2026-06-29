@@ -28,8 +28,8 @@ ROUND_ORDER = [
 # --- FLAG EMOJI MAPPING ---
 FLAG_MAP = {
     "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺", "Austria": "🇦🇹",
-    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia and Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
-    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde": "🇨🇻",
+    "Belgium": "🇧🇪", "Bosnia": "🇧🇦", "Bosnia-Herzegovina": "🇧🇦", "Brazil": "🇧🇷", 
+    "Cameroon": "🇨🇲", "Canada": "🇨🇦", "Cabo Verde": "🇨🇻", "Cape Verde Islands": "🇨🇻",
     "Chile": "🇨🇱", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷", "Croatia": "🇭🇷", 
     "Democratic Republic of Congo": "🇨🇩", "DR Congo": "🇨🇩", "Congo DR": "🇨🇩",
     "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
