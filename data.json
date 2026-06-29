@@ -20,7 +20,7 @@
             "team_home": "Germany",
             "team_away": "Paraguay",
             "kickoff_utc": "2026-06-29T20:30:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 32"
         },
