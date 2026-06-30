@@ -44,7 +44,7 @@
             "team_home": "France",
             "team_away": "Sweden",
             "kickoff_utc": "2026-06-30T21:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 32"
         },
