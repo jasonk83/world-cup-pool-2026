@@ -21,7 +21,7 @@
             "team_away": "Paraguay",
             "kickoff_utc": "2026-06-29T20:30:00Z",
             "status": "Match Finished",
-            "winner": null,
+            "winner": "Paraguay",
             "round": "Round of 32"
         },
         "537418": {
@@ -29,7 +29,7 @@
             "team_away": "Morocco",
             "kickoff_utc": "2026-06-30T01:00:00Z",
             "status": "Match Finished",
-            "winner": null,
+            "winner": "Morocco",
             "round": "Round of 32"
         },
         "537424": {
@@ -130,14 +130,14 @@
         },
         "537376": {
             "team_home": "Canada",
-            "team_away": "TBD",
+            "team_away": "Morocco",
             "kickoff_utc": "2026-07-04T17:00:00Z",
             "status": "TIMED",
             "winner": null,
             "round": "Round of 16"
         },
         "537375": {
-            "team_home": "TBD",
+            "team_home": "Paraguay",
             "team_away": "TBD",
             "kickoff_utc": "2026-07-04T21:00:00Z",
             "status": "TIMED",
@@ -145,7 +145,7 @@
             "round": "Round of 16"
         },
         "537377": {
-            "team_home": "TBD",
+            "team_home": "Brazil",
             "team_away": "TBD",
             "kickoff_utc": "2026-07-05T20:00:00Z",
             "status": "TIMED",
