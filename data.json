@@ -52,7 +52,7 @@
             "team_home": "Mexico",
             "team_away": "Ecuador",
             "kickoff_utc": "2026-07-01T01:00:00Z",
-            "status": "TIMED",
+            "status": "PAUSED",
             "winner": null,
             "round": "Round of 32"
         },
