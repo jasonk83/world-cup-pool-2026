@@ -68,7 +68,7 @@
             "team_home": "Belgium",
             "team_away": "Senegal",
             "kickoff_utc": "2026-07-01T20:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 32"
         },
