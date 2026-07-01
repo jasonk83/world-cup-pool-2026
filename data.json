@@ -60,8 +60,8 @@
             "team_home": "England",
             "team_away": "Congo DR",
             "kickoff_utc": "2026-07-01T16:00:00Z",
-            "status": "PAUSED",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "England",
             "round": "Round of 32"
         },
         "537422": {
