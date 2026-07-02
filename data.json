@@ -84,8 +84,8 @@
             "team_home": "Spain",
             "team_away": "Austria",
             "kickoff_utc": "2026-07-02T19:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Spain",
             "round": "Round of 32"
         },
         "537419": {
