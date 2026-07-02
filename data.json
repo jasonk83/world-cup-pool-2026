@@ -76,8 +76,8 @@
             "team_home": "United States",
             "team_away": "Bosnia-Herzegovina",
             "kickoff_utc": "2026-07-02T00:00:00Z",
-            "status": "TIMED",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "United States",
             "round": "Round of 32"
         },
         "537420": {
