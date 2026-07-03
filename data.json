@@ -323,7 +323,12 @@
             "537429": "\ud83c\udde8\ud83c\udded Switzerland",
             "537428": "\ud83c\uddea\ud83c\uddec Egypt",
             "537427": "\ud83c\udde6\ud83c\uddf7 Argentina",
-            "537430": "\ud83c\udde8\ud83c\uddf4 Colombia"
+            "537430": "\ud83c\udde8\ud83c\uddf4 Colombia",
+            "537376": "\ud83c\uddf2\ud83c\udde6 Morocco",
+            "537375": "\ud83c\uddeb\ud83c\uddf7 France",
+            "537377": "\ud83c\udde7\ud83c\uddf7 Brazil",
+            "537378": "\ud83c\uddf2\ud83c\uddfd Mexico",
+            "537380": "\ud83c\udde7\ud83c\uddea Belgium"
         }
     },
     "tiebreakers": {
