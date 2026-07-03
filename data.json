@@ -108,7 +108,7 @@
             "team_home": "Australia",
             "team_away": "Egypt",
             "kickoff_utc": "2026-07-03T18:00:00Z",
-            "status": "IN_PLAY",
+            "status": "Match Finished",
             "winner": null,
             "round": "Round of 32"
         },
