@@ -100,8 +100,8 @@
             "team_home": "Switzerland",
             "team_away": "Algeria",
             "kickoff_utc": "2026-07-03T03:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Switzerland",
             "round": "Round of 32"
         },
         "537428": {
