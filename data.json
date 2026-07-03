@@ -116,7 +116,7 @@
             "team_home": "Argentina",
             "team_away": "Cape Verde Islands",
             "kickoff_utc": "2026-07-03T22:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 32"
         },
