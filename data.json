@@ -140,7 +140,7 @@
             "team_home": "Paraguay",
             "team_away": "France",
             "kickoff_utc": "2026-07-04T21:00:00Z",
-            "status": "LIVE",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 16"
         },
