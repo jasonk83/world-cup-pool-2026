@@ -109,7 +109,7 @@
             "team_away": "Egypt",
             "kickoff_utc": "2026-07-03T18:00:00Z",
             "status": "Match Finished",
-            "winner": null,
+            "winner": "Egypt",
             "round": "Round of 32"
         },
         "537427": {
@@ -161,8 +161,8 @@
             "round": "Round of 16"
         },
         "537379": {
-            "team_home": "TBD",
-            "team_away": "TBD",
+            "team_home": "Portugal",
+            "team_away": "Spain",
             "kickoff_utc": "2026-07-06T19:00:00Z",
             "status": "TIMED",
             "winner": null,
@@ -177,16 +177,16 @@
             "round": "Round of 16"
         },
         "537381": {
-            "team_home": "TBD",
-            "team_away": "TBD",
+            "team_home": "Argentina",
+            "team_away": "Egypt",
             "kickoff_utc": "2026-07-07T16:00:00Z",
             "status": "TIMED",
             "winner": null,
             "round": "Round of 16"
         },
         "537382": {
-            "team_home": "TBD",
-            "team_away": "TBD",
+            "team_home": "Switzerland",
+            "team_away": "Colombia",
             "kickoff_utc": "2026-07-07T20:00:00Z",
             "status": "TIMED",
             "winner": null,
