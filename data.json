@@ -116,16 +116,16 @@
             "team_home": "Argentina",
             "team_away": "Cape Verde Islands",
             "kickoff_utc": "2026-07-03T22:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Argentina",
             "round": "Round of 32"
         },
         "537430": {
             "team_home": "Colombia",
             "team_away": "Ghana",
             "kickoff_utc": "2026-07-04T01:30:00Z",
-            "status": "TIMED",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Colombia",
             "round": "Round of 32"
         },
         "537376": {
