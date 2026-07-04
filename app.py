@@ -87,12 +87,10 @@ def save_data(data):
             "Accept": "application/vnd.github.v3+json"
         }
         
-        # GitHub requires the current file's SHA hash to update it
         get_response = requests.get(url, headers=headers)
         if get_response.status_code == 200:
             file_sha = get_response.json().get("sha")
             
-            # Encode the new JSON data in Base64 (required by GitHub API)
             json_string = json.dumps(data, indent=4)
             encoded_content = base64.b64encode(json_string.encode("utf-8")).decode("utf-8")
             
@@ -102,11 +100,51 @@ def save_data(data):
                 "sha": file_sha
             }
             
-            # Send the update to GitHub
             requests.put(url, headers=headers, json=payload)
 
+# --- HELPER FUNCTION: RENDER MATCH UI ---
+def render_match(match_id, match_info, now_utc, players, data_dict):
+    """Renders the standard UI block for a single matchup and its associated picks."""
+    home_team_display = add_flag(match_info['team_home'])
+    away_team_display = add_flag(match_info['team_away'])
+    
+    st.subheader(f"{home_team_display} vs {away_team_display}")
+    
+    # Display H1 winner line if this specific match is finished
+    if match_info["status"] == "Match Finished" and match_info.get("winner"):
+        winner_display = add_flag(match_info["winner"])
+        st.markdown(f"# 🎉 Winner: {winner_display} 🏆")
+    
+    kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
+    kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
+    kickoff_ct = kickoff_utc.astimezone(ZoneInfo("America/Chicago")).strftime("%I:%M %p CT")
+    
+    st.caption(f"Kickoff: {kickoff_et} / {kickoff_ct}")
+    
+    is_live_or_past = now_utc >= kickoff_utc
+    
+    cols = st.columns(len(players) if len(players) > 0 else 1)
+    for idx, player in enumerate(players):
+        with cols[idx]:
+            pick = data_dict["picks"].get(player, {}).get(match_id, "No Pick")
+            if not is_live_or_past and pick != "No Pick":
+                st.write(f"**{player}**: 🔒 [Hidden]")
+            else:
+                winner_display = add_flag(match_info["winner"]) if match_info.get("winner") else None
+                
+                if match_info["status"] == "Match Finished" and pick == winner_display:
+                    st.success(f"**{player}**: {pick}")
+                elif match_info["status"] == "Match Finished" and pick != winner_display and pick != "No Pick":
+                    st.error(f"**{player}**: {pick}")
+                else:
+                    st.write(f"**{player}**: {pick}")
+    st.write("")
+
+
+# --- APP INITIALIZATION ---
 data = load_data()
 PLAYERS = data["players"]
+now_utc = datetime.now(timezone.utc)
 
 st.title("🏆 2026 World Cup Pool")
 
@@ -125,14 +163,24 @@ Using your unique URL, make your selections for each confirmed matchup before ki
 | **Final** | 1 | 32 | 32 |
 """)
 
-# --- TABS ---
-tab1, tab2, tab3 = st.tabs(["Dashboard & Standings", "Submit Picks", "Manage Pool"])
+# --- TABS GENERATION ---
+tab_names = ["Dashboard & Standings", "Submit Picks"] + ROUND_ORDER + ["Manage Pool"]
+tabs = st.tabs(tab_names)
+
+tab_dashboard = tabs[0]
+tab_submit = tabs[1]
+round_tabs = tabs[2:7]
+tab_manage = tabs[7]
+
+visible_matches = {
+    m_id: m_info for m_id, m_info in data["matches"].items() 
+    if m_info['team_home'] != "TBD" and m_info['team_away'] != "TBD"
+}
 
 # --- TAB 1: DASHBOARD ---
-with tab1:
+with tab_dashboard:
     st.header("Current Standings")
     
-    # Calculate Scores
     scores = {p: 0 for p in PLAYERS}
     for match_id, match_info in data["matches"].items():
         if match_info["status"] == "Match Finished":
@@ -144,10 +192,8 @@ with tab1:
                 if data["picks"].get(player, {}).get(match_id) == winner_with_flag:
                     scores[player] += points
 
-    # Sort scores descending
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     
-    # Calculate competition rankings (allows for ties)
     ranked_leaderboard = []
     current_rank = 1
     previous_score = None
@@ -158,72 +204,36 @@ with tab1:
         ranked_leaderboard.append({"Rank": current_rank, "Player": player, "Points": score})
         previous_score = score
 
-    # Display Leaderboard without the default row index
     st.dataframe(ranked_leaderboard, hide_index=True)
 
     st.divider()
-    st.header("Matchups & Picks")
-    
-    now_utc = datetime.now(timezone.utc)
-    
-    visible_matches = {
-        m_id: m_info for m_id, m_info in data["matches"].items() 
-        if m_info['team_home'] != "TBD" and m_info['team_away'] != "TBD"
-    }
+    st.header("Active Matchups")
     
     if not visible_matches:
         st.info("Waiting for upcoming round matchups to be determined.")
     else:
+        active_rounds_found = False
         for current_round in ROUND_ORDER:
             round_matches = {m_id: m_info for m_id, m_info in visible_matches.items() if m_info['round'] == current_round}
             
             if round_matches:
-                # Hide the entire round if all matchups in this stage have concluded
+                # Hide the entire round from the Dashboard if all matchups in this stage have concluded
                 all_finished = all(m_info["status"] == "Match Finished" for m_info in round_matches.values())
                 if all_finished:
                     continue
-                    
+                
+                active_rounds_found = True
                 st.markdown(f"### ⚽ {current_round}")
                 st.divider()
                 
                 for match_id, match_info in round_matches.items():
-                    home_team_display = add_flag(match_info['team_home'])
-                    away_team_display = add_flag(match_info['team_away'])
-                    
-                    st.subheader(f"{home_team_display} vs {away_team_display}")
-                    
-                    # Display H1 winner line if this specific match is finished
-                    if match_info["status"] == "Match Finished" and match_info.get("winner"):
-                        winner_display = add_flag(match_info["winner"])
-                        st.markdown(f"# 🎉 Winner: {winner_display} 🏆")
-                    
-                    kickoff_utc = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
-                    kickoff_et = kickoff_utc.astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p ET")
-                    kickoff_ct = kickoff_utc.astimezone(ZoneInfo("America/Chicago")).strftime("%I:%M %p CT")
-                    
-                    st.caption(f"Kickoff: {kickoff_et} / {kickoff_ct}")
-                    
-                    is_live_or_past = now_utc >= kickoff_utc
-                    
-                    cols = st.columns(len(PLAYERS) if len(PLAYERS) > 0 else 1)
-                    for idx, player in enumerate(PLAYERS):
-                        with cols[idx]:
-                            pick = data["picks"].get(player, {}).get(match_id, "No Pick")
-                            if not is_live_or_past and pick != "No Pick":
-                                st.write(f"**{player}**: 🔒 [Hidden]")
-                            else:
-                                winner_display = add_flag(match_info["winner"]) if match_info.get("winner") else None
-                                
-                                if match_info["status"] == "Match Finished" and pick == winner_display:
-                                    st.success(f"**{player}**: {pick}")
-                                elif match_info["status"] == "Match Finished" and pick != winner_display and pick != "No Pick":
-                                    st.error(f"**{player}**: {pick}")
-                                else:
-                                    st.write(f"**{player}**: {pick}")
-                    st.write("") 
+                    render_match(match_id, match_info, now_utc, PLAYERS, data)
+        
+        if not active_rounds_found:
+            st.info("All currently determined matches have concluded. Check the round tabs to review past results!")
 
 # --- TAB 2: SUBMIT PICKS ---
-with tab2:
+with tab_submit:
     st.header("Submit Your Picks")
     
     url_player = st.query_params.get("player", None)
@@ -237,17 +247,12 @@ with tab2:
         player_idx = PLAYERS.index(url_player)
         selected_player = st.selectbox("Your Player Profile:", PLAYERS, index=player_idx, disabled=True)
         
-        active_matches = {
-            m_id: m_info for m_id, m_info in data["matches"].items()
-            if m_info['team_home'] != "TBD" and m_info['team_away'] != "TBD"
-        }
-        
-        if not active_matches:
+        if not visible_matches:
             st.info("No active matchups available for entry at this moment.")
         else:
             with st.form("picks_form"):
                 new_picks = {}
-                has_final_round = any(m_info["round"] == "Final" for m_info in active_matches.values())
+                has_final_round = any(m_info["round"] == "Final" for m_info in visible_matches.values())
                 
                 tiebreaker = 0
                 if has_final_round:
@@ -260,7 +265,7 @@ with tab2:
                     st.divider()
                 
                 for current_round in ROUND_ORDER:
-                    round_matches = {m_id: m_info for m_id, m_info in active_matches.items() if m_info['round'] == current_round}
+                    round_matches = {m_id: m_info for m_id, m_info in visible_matches.items() if m_info['round'] == current_round}
                     
                     if round_matches:
                         st.markdown(f"### 🏆 {current_round}")
@@ -269,7 +274,7 @@ with tab2:
                         for match_id, match_info in round_matches.items():
                             kickoff_time = datetime.fromisoformat(match_info['kickoff_utc'].replace("Z", "+00:00"))
                             
-                            if datetime.now(timezone.utc) < kickoff_time:
+                            if now_utc < kickoff_time:
                                 home_display = add_flag(match_info['team_home'])
                                 away_display = add_flag(match_info['team_away'])
                                 
@@ -299,8 +304,23 @@ with tab2:
                     save_data(data)
                     st.success("Picks saved successfully! Changes are permanently backed up.")
 
-# --- TAB 3: MANAGE POOL ---
-with tab3:
+# --- TABS 3-7: INDIVIDUAL ROUND TABS ---
+for round_name, round_tab in zip(ROUND_ORDER, round_tabs):
+    with round_tab:
+        st.header(f"⚽ {round_name} Matchups")
+        st.divider()
+        
+        round_matches = {m_id: m_info for m_id, m_info in visible_matches.items() if m_info['round'] == round_name}
+        
+        if not round_matches:
+            st.info(f"Waiting for {round_name} matchups to be determined.")
+        else:
+            for match_id, match_info in round_matches.items():
+                # Uses the exact same UI structure as the dashboard without filtering out finished matches
+                render_match(match_id, match_info, now_utc, PLAYERS, data)
+
+# --- TAB 8: MANAGE POOL ---
+with tab_manage:
     st.header("Pool Administration")
     
     input_password = st.text_input("Enter Admin Password:", type="password")
