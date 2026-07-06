@@ -164,7 +164,7 @@
             "team_home": "Portugal",
             "team_away": "Spain",
             "kickoff_utc": "2026-07-06T19:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 16"
         },
