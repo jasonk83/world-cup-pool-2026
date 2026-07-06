@@ -155,8 +155,8 @@
         "537378": {
             "team_home": "Mexico",
             "team_away": "England",
-            "kickoff_utc": "2026-07-06T00:00:00Z",
-            "status": "TIMED",
+            "kickoff_utc": "2026-07-06T01:00:00Z",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Round of 16"
         },
