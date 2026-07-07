@@ -180,7 +180,7 @@
             "team_home": "Argentina",
             "team_away": "Egypt",
             "kickoff_utc": "2026-07-07T16:00:00Z",
-            "status": "TIMED",
+            "status": "PAUSED",
             "winner": null,
             "round": "Round of 16"
         },
