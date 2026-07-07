@@ -188,7 +188,7 @@
             "team_home": "Switzerland",
             "team_away": "Colombia",
             "kickoff_utc": "2026-07-07T20:00:00Z",
-            "status": "IN_PLAY",
+            "status": "Match Finished",
             "winner": null,
             "round": "Round of 16"
         },
