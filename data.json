@@ -189,7 +189,7 @@
             "team_away": "Colombia",
             "kickoff_utc": "2026-07-07T20:00:00Z",
             "status": "Match Finished",
-            "winner": null,
+            "winner": "Switzerland",
             "round": "Round of 16"
         },
         "537383": {
@@ -217,8 +217,8 @@
             "round": "Quarter-finals"
         },
         "537386": {
-            "team_home": "TBD",
-            "team_away": "TBD",
+            "team_home": "Argentina",
+            "team_away": "Switzerland",
             "kickoff_utc": "2026-07-12T01:00:00Z",
             "status": "TIMED",
             "winner": null,
