@@ -196,8 +196,8 @@
             "team_home": "France",
             "team_away": "Morocco",
             "kickoff_utc": "2026-07-09T20:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "France",
             "round": "Quarter-finals"
         },
         "537384": {
