@@ -204,8 +204,8 @@
             "team_home": "Spain",
             "team_away": "Belgium",
             "kickoff_utc": "2026-07-10T19:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Spain",
             "round": "Quarter-finals"
         },
         "537385": {
