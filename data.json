@@ -156,8 +156,8 @@
             "team_home": "Mexico",
             "team_away": "England",
             "kickoff_utc": "2026-07-06T01:00:00Z",
-            "status": "Match Finished",
-            "winner": "England",
+            "status": "2026-07-06 01:00:00Z",
+            "winner": null,
             "round": "Round of 16"
         },
         "537379": {
@@ -212,7 +212,7 @@
             "team_home": "Norway",
             "team_away": "England",
             "kickoff_utc": "2026-07-11T21:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Quarter-finals"
         },
