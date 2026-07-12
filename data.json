@@ -212,15 +212,15 @@
             "team_home": "Norway",
             "team_away": "England",
             "kickoff_utc": "2026-07-11T21:00:00Z",
-            "status": "PAUSED",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "England",
             "round": "Quarter-finals"
         },
         "537386": {
             "team_home": "Argentina",
             "team_away": "Switzerland",
             "kickoff_utc": "2026-07-12T01:00:00Z",
-            "status": "TIMED",
+            "status": "IN_PLAY",
             "winner": null,
             "round": "Quarter-finals"
         },
