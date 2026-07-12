@@ -220,8 +220,8 @@
             "team_home": "Argentina",
             "team_away": "Switzerland",
             "kickoff_utc": "2026-07-12T01:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Argentina",
             "round": "Quarter-finals"
         },
         "537387": {
