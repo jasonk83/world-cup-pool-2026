@@ -236,8 +236,8 @@
             "team_home": "England",
             "team_away": "Argentina",
             "kickoff_utc": "2026-07-15T19:00:00Z",
-            "status": "IN_PLAY",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Argentina",
             "round": "Semi-finals"
         },
         "537390": {
