@@ -369,7 +369,8 @@
             "537385": "\ud83c\uddf3\ud83c\uddf4 Norway",
             "537386": "\ud83c\udde6\ud83c\uddf7 Argentina",
             "537387": "\ud83c\uddea\ud83c\uddf8 Spain",
-            "537388": "\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f England"
+            "537388": "\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f England",
+            "537390": "\ud83c\uddea\ud83c\uddf8 Spain"
         },
         "Ben": {
             "537426": "\ud83c\udde8\ud83c\udde9 Congo DR",
@@ -402,7 +403,7 @@
         "Stuebe": 0,
         "Carly": 0,
         "Antonio": 0,
-        "Kennedy": 0,
+        "Kennedy": 4,
         "Ben": 0
     },
     "players": [
