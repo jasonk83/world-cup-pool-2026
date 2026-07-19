@@ -281,7 +281,8 @@
         },
         "Stuebe": {
             "537387": "\ud83c\uddea\ud83c\uddf8 Spain",
-            "537388": "\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f England"
+            "537388": "\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f England",
+            "537390": "\ud83c\udde6\ud83c\uddf7 Argentina"
         },
         "Carly": {
             "537415": "\ud83c\udde9\ud83c\uddea Germany",
@@ -404,7 +405,7 @@
     },
     "tiebreakers": {
         "Chief": 2,
-        "Stuebe": 0,
+        "Stuebe": 3,
         "Carly": 3,
         "Antonio": 0,
         "Kennedy": 4,
