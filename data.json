@@ -244,8 +244,8 @@
             "team_home": "Spain",
             "team_away": "Argentina",
             "kickoff_utc": "2026-07-19T19:00:00Z",
-            "status": "PAUSED",
-            "winner": null,
+            "status": "Match Finished",
+            "winner": "Spain",
             "round": "Final"
         }
     },
